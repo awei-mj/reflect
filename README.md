@@ -8,7 +8,7 @@ sm.ms: <https://i.loli.net/2020/04/05/5MFP9CtOsBuazlr.png> 时间+ID+后缀
 
 前端提供html、md、url、bbcode?
 
-<a href="https://sm.ms/image/5MFP9CtOsBuazlr" target="_blank"><img src="https://i.loli.net/2020/04/05/5MFP9CtOsBuazlr.png" alt="20200328000851.png"></a>
+[![20200328000851.png](https://i.loli.net/2020/04/05/5MFP9CtOsBuazlr.png)](https://sm.ms/image/5MFP9CtOsBuazlr)
 
 主要问题:
 
