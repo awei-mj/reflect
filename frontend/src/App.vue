@@ -10,7 +10,7 @@ import MainPage from './components/MainPage.vue'
         <span>asd</span>
       </el-header>
       <el-main>
-        <MainPage />
+        <main-page />
       </el-main>
       <el-footer>Footer</el-footer>
     </el-container>

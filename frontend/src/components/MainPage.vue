@@ -1,104 +1,70 @@
 <script lang="ts" setup>
-  import { ref, watch, Ref } from 'vue';
-  import { Delete, ZoomIn, UploadFilled } from '@element-plus/icons-vue'
+  import PicCard from './PicCard.vue'
+  import { ref, Ref } from 'vue';
+  import { UploadFilled } from '@element-plus/icons-vue'
+  import { Md5 } from 'ts-md5'
 
-  import type { UploadFile, UploadUserFile } from 'element-plus'
+  import type { UploadUserFile } from 'element-plus'
+
+  type UserFile = UploadUserFile & {md5: string};
 
   const dialogImageUrl = ref('')
   const dialogVisible = ref(false)
   //const disabled = ref(false)
   const files : Ref<FileList | null> = ref(null)
-  const fileList = ref(new Array<UploadUserFile>)
-  const handlePictureCardPreview = (file: UploadFile) => {
+  const fileList = ref(new Array<UserFile>)
+  const uid = ref(0)
+
+  const handlePictureCardPreview = (file: UserFile) => {
     dialogImageUrl.value = file.url!
     dialogVisible.value = true
   }
-  const handleRemove = (file: UploadFile) => {
+  const handleRemove = (file: UserFile) => {
     let index = fileList.value.indexOf(file);
     fileList.value.splice(index, 1);
   }
-  const getFileSize = (file: UploadFile) => {
-    if(file.size !== undefined) {
-      if(file.size < 1024)
-        return file.size.toFixed(2) + 'B';
-      else if(file.size < 1048576)
-        return (file.size / 1024).toFixed(2) + 'KiB';
-      else
-        return (file.size / 1048576).toFixed(2) + 'MiB';
-    }
-    return undefined;
-  }
-  const handleChange = () => {
+  const handleChange = async () => {
     const input = document.getElementById("input") as HTMLInputElement;
     files.value = input.files!;
-    fileList.value.splice(0, fileList.value.length);
     for (let i = 0; i < files.value.length; i++) {
       let file = files.value[i];
-      fileList.value.push({
-        name: file.name,
-        size: file.size,
-        status: 'ready',
-        uid: i,
-        url: URL.createObjectURL(file)
-      })
+      let md5 = Md5.hashStr(await file.text())
+      // 判断重复
+      if(fileList.value.every((file)=>{
+        return file.md5 != md5
+      })) {
+        fileList.value.push({
+          name: file.name,
+          size: file.size,
+          status: 'ready',
+          uid: uid.value,
+          url: URL.createObjectURL(file),
+          md5: md5
+        });
+        uid.value++;
+      }
     }
   }
-  watch(files, (newList) => {
-    (document.getElementById("input") as HTMLInputElement).files = newList
+  const handleClear = () => {
     fileList.value.splice(0, fileList.value.length);
-    for (let i = 0; i < files.value!.length; i++) {
-      let file = files.value![i];
-      fileList.value.push({
-        name: file.name,
-        size: file.size,
-        status: 'ready',
-        uid: i,
-        url: URL.createObjectURL(file)
-      })
-    }
-  })
+  }
 </script>
 
 <template>
+  <!-- TODO: input做成按钮 以及drag区域 -->
+  <el-icon><upload-filled /></el-icon>
   <input multiple type="file" accept="image/*" id="input" @change="handleChange"/>
 
   <ul>
     <li v-for="file in fileList">
-      <img :src="file.url" :alt="file.name" />
+      <pic-card :src="file.url!" :size="file.size!" :name="file.name" @handle-preview="handlePictureCardPreview(file)" @handle-remove="handleRemove(file)"/>
+      <span>{{ file.md5 }}</span>
     </li>
   </ul>
 
-  <!-- <el-upload drag multiple action="#" list-type="picture" v-model:file-list="fileList" :auto-upload="false">
-    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-    <div class="el-upload__text">
-      Drop file here or <em>click to upload</em>
-    </div>
-
-    <template #file="{ file }">
-      <div style="width: 500px;">
-        <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-        <span class="el-upload-list__item-thumbnail">{{ getFileSize(file) }}</span>
-        <span class="el-upload-list__item-thumbnail">{{ file.name }}</span>
-        <span class="el-upload-list__item-actions">
-          <span
-            class="el-upload-list__item-preview"
-            @click="handlePictureCardPreview(file)"
-          >
-            <el-icon><zoom-in /></el-icon>
-          </span>
-          <span
-            v-if="!disabled"
-            class="el-upload-list__item-preview"
-            @click="handleRemove(file)"
-          >
-            <el-icon><Delete /></el-icon>
-          </span>
-        </span>
-      </div>
-    </template>
-  </el-upload> -->
-
+  <el-button @click="handleClear">清空</el-button>
   <el-button>上传图片</el-button>
+  <el-button @click="">选择图片</el-button>
 
   <el-dialog v-model="dialogVisible">
     <img w-full :src="dialogImageUrl" alt="Preview Image" />
