@@ -12,12 +12,6 @@ sm.ms: <https://i.loli.net/2020/04/05/5MFP9CtOsBuazlr.png> 时间+ID+后缀
 
 主要问题:
 
-网站内显示图片及相关信息的路径 图片本身url(UUID) 数据库中图片存储结构(主键是UUID)、是否需要使用哈希检测相同图片(否)
+pics表: uuid 文件名 大小 宽 高 上传时间 内容
 
-总览页面: 图片名、预览(在前端裁剪)、大小、长宽、上传时间、查/删
-
-图片url和站内图片信息url的参数一致，或许可以使用UUID
-
-删除需要使用Deletion Hash(???)
-
-另: 研究token/cookie/authentication怎么搞
+基于uuid增删查，在前端预览时缩放，另研究token/cookie/authentication
