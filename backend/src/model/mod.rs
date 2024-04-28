@@ -1,6 +1,5 @@
-use rbatis::rbdc::{Bytes, DateTime, Uuid};
+use rbatis::{impl_select, rbdc::{Bytes, DateTime, Uuid}};
 use serde::{Deserialize, Serialize};
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Picture {
@@ -13,3 +12,4 @@ pub struct Picture {
     pub content: Bytes
 }
 rbatis::crud!(Picture {}, "pics");
+impl_select!(Picture {select_by_id(uuid: &Uuid) -> Option => "`where uuid = #{uuid} limit 1`"}, "pics");
