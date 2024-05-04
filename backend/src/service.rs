@@ -3,7 +3,6 @@ use rbatis::{
     rbdc::{DateTime, Uuid},
     RBatis,
 };
-use serde_json::json;
 
 use crate::model::Picture;
 
@@ -11,7 +10,6 @@ pub async fn upload_picture(State(rb): State<RBatis>, Json(mut picture): Json<Pi
     let fut = rb.acquire_begin();
     picture.uuid = Uuid::new();
     picture.upload_time = DateTime::now();
-    println!("insert = {}", json!(picture));
     let mut tx = fut.await.unwrap();
     Picture::insert(&tx, &picture).await.unwrap();
     tx.commit().await.unwrap();
@@ -23,7 +21,6 @@ pub async fn upload_pictures(State(rb): State<RBatis>, Json(mut pics): Json<Vec<
         (*pic).uuid = Uuid::new();
         (*pic).upload_time = DateTime::now();
     }
-    println!("insert = {}", json!(pics));
     let mut tx = fut.await.unwrap();
     Picture::insert_batch(&tx, pics.as_slice(), pics.len() as u64).await.unwrap();
     tx.commit().await.unwrap();

@@ -1,6 +1,7 @@
 use axum::{
     routing::{delete, get, post}, Router
 };
+use fast_log::{consts::LogSize, plugin::{file_split::RollingType, packer::LogPacker}};
 use rbatis::RBatis;
 use rbdc_mysql::MysqlDriver;
 
@@ -9,7 +10,14 @@ pub mod model;
 
 #[tokio::main]
 async fn main() {
-    fast_log::init(fast_log::Config::new().console()).expect("rbatis init fail");
+    fast_log::init(fast_log::Config::new()
+        .console()
+        .chan_len(Some(100000))
+        .file_split("target/logs/",
+                    LogSize::MB(1),
+                    RollingType::All,
+                    LogPacker{}))
+        .expect("rbatis init fail");
 
     let rb = RBatis::new();
     rb.link(MysqlDriver {}, "mysql://awei:123456@localhost:3306/nose_dev").await.unwrap();
