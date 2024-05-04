@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post}, Router
+    routing::{delete, get, post}, Router
 };
 use rbatis::RBatis;
 use rbdc_mysql::MysqlDriver;
@@ -18,6 +18,8 @@ async fn main() {
         .route("/picture", post(service::upload_picture))
         .route("/pictures", post(service::upload_pictures))
         .route("/picture/:uuid", get(service::get_picture_by_uuid))
+        .route("/pictures", get(service::get_pictures))
+        .route("/picture/:uuid", delete(service::delete_picture))
         .with_state(rb);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
