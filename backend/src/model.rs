@@ -1,4 +1,7 @@
-use rbatis::{impl_delete, impl_select, rbdc::{Bytes, DateTime, Uuid}};
+use rbatis::{
+    impl_delete, impl_select,
+    rbdc::{Bytes, DateTime, Uuid},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -9,8 +12,8 @@ pub struct Picture {
     pub width: u32,
     pub height: u32,
     pub upload_time: DateTime,
-    pub content: Bytes
+    pub content: Bytes,
 }
 rbatis::crud!(Picture {}, "pics");
-impl_select!(Picture {select_by_id(uuid: Uuid) -> Option => "`where uuid = #{uuid} limit 1`"}, "pics");
-impl_delete!(Picture {delete_by_id(uuid: Uuid) => "`where uuid = #{uuid} limit 1`"}, "pics");
+impl_select!(Picture {select_by_id(uuid: &Uuid) -> Option => "`where uuid = #{uuid} limit 1`"}, "pics");
+impl_delete!(Picture {delete_by_id(uuid: &Uuid) => "`where uuid = #{uuid} limit 1`"}, "pics");

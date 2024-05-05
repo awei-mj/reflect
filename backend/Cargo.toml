@@ -14,4 +14,5 @@ rbs = "4.5"
 rbatis = { version = "4.5.21" }
 rbdc-mysql = "4.5"
 log = "0.4"
-fast_log = "1.6"
+fast_log = { version = "1.6", features = [ "zip", "gzip" ] }
+toml = "0.8"
