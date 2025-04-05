@@ -1,8 +1,6 @@
-use std::{error::Error, fs, io::Read, time::Duration};
-
-use fast_log::{consts::LogSize, plugin::file_split::KeepType};
-use log::warn;
+use std::{error::Error, fs, io::Read};
 use serde::Deserialize;
+use tracing::warn;
 
 pub enum Packer {
     LogPacker,
@@ -22,8 +20,8 @@ struct RawLog {
 pub struct Log {
     pub buffer: usize,
     pub file_path: String,
-    pub file_size: LogSize,
-    pub keep_type: KeepType,
+    pub file_size: u32,
+    pub keep_type: u32,
     pub packer: Packer,
 }
 
@@ -58,8 +56,8 @@ pub fn get_config() -> Result<Config, Box<dyn Error>> {
     let log = Log {
         buffer: 0,
         file_path: String::new(),
-        file_size: LogSize::B(0),
-        keep_type: KeepType::All,
+        file_size: 0,
+        keep_type: 0,
         packer: Packer::LogPacker,
     };
     let mut conf = Config {
@@ -77,20 +75,9 @@ pub fn get_config() -> Result<Config, Box<dyn Error>> {
         .for_each(|entry| {
             conf.log.buffer = entry.log.buffer;
             conf.log.file_path = entry.log.file_path;
-            conf.log.file_size = LogSize::parse(&entry.log.file_size).unwrap_or_else(|err| {
-                warn!("log file size parse error: {}", err);
-                LogSize::B(0)
-            });
+            conf.log.file_size = 0;
 
-            if entry.log.keep_type == "all" {
-                conf.log.keep_type = KeepType::All;
-            } else if entry.log.keep_type == "day" {
-                conf.log.keep_type = KeepType::KeepTime(Duration::from_secs(24 * 3600));
-            } else if entry.log.keep_type == "week" {
-                conf.log.keep_type = KeepType::KeepTime(Duration::from_secs(7 * 24 * 3600));
-            } else {
-                conf.log.keep_type = KeepType::KeepNum(entry.log.keep_type.parse().unwrap());
-            }
+            conf.log.keep_type = 0;
 
             if entry.log.packer == "log" {
                 conf.log.packer = Packer::LogPacker;

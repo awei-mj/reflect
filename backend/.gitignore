@@ -1,2 +1,3 @@
 target/
 application.toml
+Cargo.lock
