@@ -6,6 +6,7 @@ use axum::{
     Json,
 };
 use sea_orm::{prelude::Uuid, EntityTrait};
+use serde::{Deserialize, Serialize};
 use tracing::info;
 
 /* 检查文件格式？ */
@@ -103,4 +104,35 @@ pub async fn delete_picture_by_uuid(
     } else {
         info!("[reflect] Delete /picture/{} Not Found", uuid);
     }
+}
+
+/* 验证TOTP码 */
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct TotpVerifyRequest {
+    pub code: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct TotpVerifyResponse {
+    pub valid: bool,
+}
+
+pub async fn verify_totp(
+    State(state): State<AppState>,
+    Json(req): Json<TotpVerifyRequest>,
+) -> Json<TotpVerifyResponse> {
+    use totp_rs::TOTP;
+    info!("[reflect] Post /totp/verify Handling");
+
+    // 创建TOTP实例
+    let result = match TOTP::from_url(state.totp_url) {
+        Ok(totp) => {
+            // 验证TOTP码
+            totp.check_current(&req.code).unwrap_or(false)
+        },
+        Err(_) => false
+    };
+
+    info!("[reflect] Post /totp/verify Done");
+    Json(TotpVerifyResponse { valid: result })
 }

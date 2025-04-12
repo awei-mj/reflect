@@ -14,6 +14,7 @@ pub mod utils;
 pub struct AppState {
     pub db: DatabaseConnection,
     pub img_path: String,
+    pub totp_url: String,
 }
 
 #[tokio::main]
@@ -25,12 +26,15 @@ pub async fn main() {
 
     let conf = utils::config::get_config().unwrap();
 
+    let totp_url = generate_totp_url(&conf.totp_url);
+
     let mut opt = ConnectOptions::new(&conf.db);
     opt.sqlx_logging(false);
     let db = Database::connect(opt).await.unwrap();
     let app_state = AppState {
         db,
         img_path: conf.img_path,
+        totp_url,
     };
 
     let app = Router::new()
@@ -45,10 +49,33 @@ pub async fn main() {
             get(service::get_picture_by_uuid)
             .delete(service::delete_picture_by_uuid),
         )
+        .route("/totp/verify", post(service::verify_totp))
         .with_state(app_state);
     let listener = TcpListener::bind(format!("{}:{}", conf.ip, conf.port))
         .await
         .unwrap();
     info!("[nose] Server established");
     axum::serve(listener, app).await.unwrap();
+}
+
+fn generate_totp_url(conf: &Option<String>) -> String {
+    use totp_rs::{TOTP, Algorithm, Secret};
+
+    match conf {
+        Some(conf_url) => conf_url.clone(),
+        None => {
+            let totp = TOTP::new(
+                Algorithm::SHA1,
+                6,
+                1,
+                30,
+                Secret::generate_secret().to_bytes().unwrap(),
+                Some("awei".to_string()),
+                "awei".to_string(),
+            ).unwrap();
+            let url = totp.get_url();
+            println!("totp url: {}", url);
+            url
+        }
+    }
 }

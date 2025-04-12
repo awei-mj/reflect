@@ -8,6 +8,7 @@ pub struct RawConfig {
     pub port: u16,
     pub db: String,
     pub img_path: String,
+    pub totp_url: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
