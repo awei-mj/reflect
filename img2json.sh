@@ -1,3 +1,3 @@
 #!/bin/zsh
-hexdump -v -e '/1 "%u\n"' $1 | jq -cs . > img.json
+hexdump -v -e '/1 "%u\n"' $1 | jq -cs . | xclip
 
