@@ -61,14 +61,13 @@ pub async fn upload_pictures(
     info!("[reflect] Post /pictures Handling");
 
     for pic in pictures.iter_mut() {
-        let data_temp = pic.data.clone().ok_or(axum::Error::new("Data is None"))?;
+        let data_temp = pic.data.take().ok_or(axum::Error::new("Data is None"))?;
         data.push(data_temp);
-        pic.data = None;
     }
     let pics = pictures.into_iter().map(|pic| picture::ActiveModel::from(pic)).collect::<Vec<_>>();
 
     for (i, pic) in pics.iter().enumerate() {
-        let file_path = format!("{}/{}", state.img_path, pic.file_path.clone().into_value().ok_or(axum::Error::new("File path is None"))?);
+        let file_path = format!("{}/{}", state.img_path, pic.file_path.clone().take().ok_or(axum::Error::new("File path is None"))?);
         save_picture(&file_path, &data[i])?;
     }
     
