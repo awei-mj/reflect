@@ -9,7 +9,6 @@ use sea_orm::{prelude::Uuid, EntityTrait};
 use serde::{Deserialize, Serialize};
 use tracing::{info, warn};
 
-/* TODO: 检查文件格式？ */
 fn save_picture(file_path: &str, data: &Vec<u8>) -> Result<(), AppError> {
     let dir = file_path.split("/").take(file_path.split("/").count() - 1).collect::<Vec<&str>>().join("/");
     if !std::path::Path::new(&dir).exists() {
@@ -90,7 +89,6 @@ pub async fn get_picture_by_uuid(
     }
 }
 
-/* TODO: 分页、排序 */
 pub async fn get_pictures(
     State(state): State<AppState>,
 ) -> Result<Json<Vec<picture::Picture>>, AppError> {
@@ -140,11 +138,10 @@ pub async fn verify_totp(
     State(state): State<AppState>,
     Json(req): Json<TotpVerifyRequest>,
 ) -> Result<Json<TotpVerifyResponse>, AppError> {
-    use totp_rs::TOTP;
     info!("[reflect] Post /totp/verify Handling");
 
     // 创建TOTP实例
-    let result = TOTP::from_url(state.totp_url)?.check_current(&req.code)?;
+    let result = state.totp.check_current(&req.code)?;
 
     info!("[reflect] Post /totp/verify Done");
     Ok(Json(TotpVerifyResponse { valid: result }))

@@ -5,6 +5,7 @@ use axum::{
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use tokio::net::TcpListener;
 use tracing::{error, info};
+use totp_rs::TOTP;
 
 pub mod model;
 pub mod service;
@@ -15,7 +16,7 @@ pub mod error;
 pub struct AppState {
     pub db: DatabaseConnection,
     pub img_path: String,
-    pub totp_url: String,
+    pub totp: TOTP,
 }
 
 #[tokio::main]
@@ -38,7 +39,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app_state = AppState {
         db,
         img_path: conf.img_path,
-        totp_url,
+        totp: TOTP::from_url(totp_url)?,
     };
 
     let app = Router::new()
