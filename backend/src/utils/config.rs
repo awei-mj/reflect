@@ -9,6 +9,8 @@ pub struct RawConfig {
     pub db: String,
     pub img_path: String,
     pub totp_url: Option<String>,
+    pub log_dir: String,
+    pub log_prefix: String,
 }
 
 #[derive(Debug, Deserialize)]

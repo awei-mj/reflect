@@ -51,13 +51,14 @@ impl From<Model> for Picture {
 impl From<Picture> for ActiveModel {
     fn from(picture: Picture) -> Self {
         let now = Local::now().naive_local();
-        
         let uuid = match picture.id {
             Some(id) => id,
             None => Uuid::new_v4(),
         };
 
-        let file_path = format!("{}/{}/{}.{}", now.year(), now.month(), uuid.to_string(), picture.name.split(".").last().unwrap());
+        let name = picture.name.split(".").last().unwrap_or("jpg");
+
+        let file_path = format!("{}/{}/{}.{}", now.year(), now.month(), uuid.to_string(), name.to_string());
 
         ActiveModel {
             id: Set(uuid),
