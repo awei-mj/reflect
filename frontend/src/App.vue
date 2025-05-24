@@ -7,7 +7,6 @@ import MainPage from './components/MainPage.vue'
     <el-container>
       <el-header>
         <span>載せ</span>
-        <span>asd</span>
       </el-header>
       <el-main>
         <main-page />
@@ -17,7 +16,7 @@ import MainPage from './components/MainPage.vue'
   </div>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
   .el-main {
     height:1000px;
   }

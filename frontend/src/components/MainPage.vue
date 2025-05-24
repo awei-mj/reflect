@@ -1,12 +1,11 @@
 <script lang="ts" setup>
   import PicCard from './PicCard.vue'
   import { ref, Ref } from 'vue';
-  import { UploadFilled } from '@element-plus/icons-vue'
-  import { Md5 } from 'ts-md5'
+  import { Delete, Picture, Upload } from '@element-plus/icons-vue'
 
   import type { UploadUserFile } from 'element-plus'
 
-  type UserFile = UploadUserFile & {md5: string};
+  type UserFile = UploadUserFile;
 
   const dialogImageUrl = ref('')
   const dialogVisible = ref(false)
@@ -23,26 +22,24 @@
     let index = fileList.value.indexOf(file);
     fileList.value.splice(index, 1);
   }
+  const handleRename = (uid: number, newName: string) => {
+    const file = fileList.value.find(f => f.uid === uid)
+    if (file) file.name = newName
+  }
   const handleChange = async () => {
     const input = document.getElementById("input") as HTMLInputElement;
     files.value = input.files!;
     for (let i = 0; i < files.value.length; i++) {
       let file = files.value[i];
-      let md5 = Md5.hashStr(await file.text())
-      // 判断重复
-      if(fileList.value.every((file)=>{
-        return file.md5 != md5
-      })) {
-        fileList.value.push({
-          name: file.name,
-          size: file.size,
-          status: 'ready',
-          uid: uid.value,
-          url: URL.createObjectURL(file),
-          md5: md5
-        });
-        uid.value++;
-      }
+
+      fileList.value.push({
+        name: file.name,
+        size: file.size,
+        status: 'ready',
+        uid: uid.value,
+        url: URL.createObjectURL(file),
+      });
+      uid.value++;
     }
   }
   const handleClear = () => {
@@ -52,24 +49,31 @@
 
 <template>
   <!-- TODO: input做成按钮 以及drag区域 -->
+
   <el-icon><upload-filled /></el-icon>
-  <input multiple type="file" accept="image/*" id="input" @change="handleChange"/>
 
   <ul>
-    <li v-for="file in fileList">
-      <pic-card :src="file.url!" :size="file.size!" :name="file.name" @handle-preview="handlePictureCardPreview(file)" @handle-remove="handleRemove(file)"/>
-      <span>{{ file.md5 }}</span>
+    <li v-for="file in fileList" :key="file.uid">
+      <pic-card :src="file.url!" :size="file.size!" :name="file.name" :uid="file.uid"
+        @handle-preview="handlePictureCardPreview(file)"
+        @handle-remove="handleRemove(file)"
+        @handle-rename="handleRename"
+      />
     </li>
   </ul>
 
-  <el-button @click="handleClear">清空</el-button>
-  <el-button>上传图片</el-button>
-  <el-button @click="">选择图片</el-button>
+  <el-button-group>
+    <el-button type="danger" :icon="Delete" @click="handleClear">清空</el-button>
+    <el-button type="primary" :icon="Upload" color="#17a2b8">上传图片</el-button>
+    <el-button type="primary" :icon="Picture" @click="">
+      <input multiple type="file" accept="image/*" id="input" title="选择图片" @change="handleChange" />
+    </el-button>
+  </el-button-group>
 
   <el-dialog v-model="dialogVisible">
     <img w-full :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
 </style>
