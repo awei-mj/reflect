@@ -54,7 +54,7 @@
 
   <ul>
     <li v-for="file in fileList" :key="file.uid">
-      <pic-card :src="file.url!" :size="file.size!" :name="file.name" :uid="file.uid"
+      <pic-card :src="file.url!" :size="file.size!" :name="file.name" :uid="file.uid?"
         @handle-preview="handlePictureCardPreview(file)"
         @handle-remove="handleRemove(file)"
         @handle-rename="handleRename"
