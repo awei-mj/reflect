@@ -103,6 +103,6 @@ async fn shutdown_signal() {
     }
 
     info!("[reflect] Shutting down");
-    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
     info!("[reflect] Shutdown complete");
 }
